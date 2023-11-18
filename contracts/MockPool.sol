@@ -5,8 +5,8 @@ import {IERC20} from "./interfaces/IERC20.sol";
 
 // ignore health factor, liquidation, reentrancy, etc
 contract MockPool {
-    mapping(address => mapping(address => uint256)) deposits;
-    mapping(address => mapping(address => uint256)) debts;
+    mapping(address => mapping(address => uint256)) public deposits;
+    mapping(address => mapping(address => uint256)) public debts;
 
     function borrow(
         address asset,

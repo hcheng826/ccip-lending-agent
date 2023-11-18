@@ -10,7 +10,8 @@ import {Client} from "@chainlink/contracts-ccip/src/v0.8/ccip/libraries/Client.s
 contract CrossChainAaveAgent is CCIPReceiver {
     IPool immutable pool;
     address immutable owner;
-    mapping(uint64 => mapping(address => bool)) crossChainBorrowerAllowList;
+    mapping(uint64 => mapping(address => bool))
+        public crossChainBorrowerAllowList;
 
     enum AaveOp {
         BORROW,
@@ -117,6 +118,20 @@ contract CrossChainAaveAgent is CCIPReceiver {
         pool.withdraw(asset, amount, to);
     }
 
+    function withdrawFromAgent(
+        address asset,
+        uint256 amount,
+        address to
+    ) external onlyOwner {
+        if (asset == address(0)) {
+            (bool success, ) = payable(to).call{value: amount}("");
+            if (!success) {
+                revert();
+            }
+        }
+        IERC20(asset).transfer(to, amount);
+    }
+
     function borrowToChain(
         AaveOpParams calldata opParam,
         uint64 dstChainSelector,
@@ -134,7 +149,9 @@ contract CrossChainAaveAgent is CCIPReceiver {
             receiver: abi.encode(dstChainAgent),
             data: abi.encode(AaveOp.BORROW, opParam),
             tokenAmounts: new Client.EVMTokenAmount[](0),
-            extraArgs: "",
+            extraArgs: Client._argsToBytes(
+                Client.EVMExtraArgsV1({gasLimit: 500_000, strict: false})
+            ),
             feeToken: address(0)
         });
 
@@ -149,18 +166,21 @@ contract CrossChainAaveAgent is CCIPReceiver {
     }
 
     function repayToChain(
-        AaveOpParams calldata opParam,
+        AaveOpParams calldata opParam, // dst chain token address
         address dstChainAgent,
-        uint64 dstChainSelector
+        uint64 dstChainSelector,
+        address srcChainAsset
     ) external payable {
-        address asset = opParam.asset;
         uint256 amount = opParam.amount;
-        IERC20(asset).transferFrom(msg.sender, address(this), amount);
-        IERC20(asset).approve(i_router, amount);
+        IERC20(srcChainAsset).transferFrom(msg.sender, address(this), amount);
+        IERC20(srcChainAsset).approve(i_router, amount);
 
         Client.EVMTokenAmount[]
             memory tokenAmount = new Client.EVMTokenAmount[](1);
-        tokenAmount[0] = Client.EVMTokenAmount({token: asset, amount: amount});
+        tokenAmount[0] = Client.EVMTokenAmount({
+            token: srcChainAsset,
+            amount: amount
+        });
 
         Client.EVM2AnyMessage memory message = Client.EVM2AnyMessage({
             receiver: abi.encode(dstChainAgent),
@@ -220,19 +240,19 @@ contract CrossChainAaveAgent is CCIPReceiver {
         emit MessageSent(messageId);
     }
 
-    function borrowFromThisChain(
+    function _borrowFromThisChain(
         AaveOpParams memory params,
         address sender,
         uint64 chainSelector
     ) internal {
-        if (crossChainBorrowerAllowList[chainSelector][sender]) {
+        if (!crossChainBorrowerAllowList[chainSelector][sender]) {
             revert CrossChainBorrowerNotAllowed(chainSelector, sender);
         }
         _borrowToChain(params, chainSelector, sender);
     }
 
     // called by ccip
-    function repayToThisChain(AaveOpParams memory params) internal {
+    function _repayToThisChain(AaveOpParams memory params) internal {
         // assume the asset has been trasferred by CCIP
         address asset = params.asset;
         uint256 amount = params.amount;
@@ -245,18 +265,20 @@ contract CrossChainAaveAgent is CCIPReceiver {
         Client.Any2EVMMessage memory message
     ) internal override {
         address sender = abi.decode(message.sender, (address));
-        AaveOpData memory opData = abi.decode(message.data, (AaveOpData));
+        if (keccak256(message.data) != keccak256(bytes(""))) {
+            AaveOpData memory opData = abi.decode(message.data, (AaveOpData));
 
-        if (opData.op == AaveOp.BORROW) {
-            borrowFromThisChain(
-                opData.params,
-                sender,
-                message.sourceChainSelector
-            );
-        } else if (opData.op == AaveOp.REPAY) {
-            repayToThisChain(opData.params);
-        } else {
-            revert InvalidAaveOp(opData.op);
+            if (opData.op == AaveOp.BORROW) {
+                _borrowFromThisChain(
+                    opData.params,
+                    sender,
+                    message.sourceChainSelector
+                );
+            } else if (opData.op == AaveOp.REPAY) {
+                _repayToThisChain(opData.params);
+            } else {
+                revert InvalidAaveOp(opData.op);
+            }
         }
 
         emit MessageReceived(message.messageId);

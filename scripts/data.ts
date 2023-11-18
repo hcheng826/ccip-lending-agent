@@ -1,0 +1,30 @@
+// https://docs.chain.link/ccip/supported-networks/testnet
+export const data = {
+  sepolia: {
+    MockPool: "0x618D407863c6ac5dB1Fd93A88490a32c3A674daC",
+    CrossChainAaveAgent: "0x9C2DD01e7676b307aADa611f51D93eeB48eb54C3",
+    ccipRouter: "0xd0daae2231e9cb96b94c8512223533293c3693bf",
+    chainSelector: "16015286601757825753",
+    CCIP_BnM: "0xFd57b4ddBf88a4e07fF4e34C487b99af2Fe82a05",
+    CCIP_LnM: "0x466D489b6d36E7E3b824ef491C225F5830E81cC1",
+    LINK: "0x779877A7B0D9E8603169DdbD7836e478b4624789",
+  },
+  mumbai: {
+    MockPool: "0xa3752Cf95ffa113b8BB9C52E71B879E2d5FCFBF0",
+    CrossChainAaveAgent: "0xf165716987963a93862Ac475b13F91d2DbE88045",
+    ccipRouter: "0x70499c328e1e2a3c41108bd3730f6670a44595d1",
+    chainSelector: "12532609583862916517",
+    CCIP_BnM: "0xf1E3A5842EeEF51F2967b3F05D45DD4f4205FF40",
+    CCIP_LnM: "0xc1c76a8c5bfde1be034bbcd930c668726e7c1987",
+    LINK: "0x326C977E6efc84E512bB9C30f76E30c160eD06FB",
+  },
+  bscTestnet: {
+    MockPool: "0x58724D534663427cA0eF134c59054Bd5a32c8C24",
+    CrossChainAaveAgent: "0xC20Da6Ca6Bf1C440b12d7BA167a3226afDd818c8",
+    ccipRouter: "0x9527e2d01a3064ef6b50c1da1c0cc523803bcff2",
+    chainSelector: "13264668187771770619",
+    CCIP_BnM: "0xbfa2acd33ed6eec0ed3cc06bf1ac38d22b36b9e9",
+    CCIP_LnM: "0x79a4fc27f69323660f5bfc12dee21c3cc14f5901",
+    LINK: "0x84b9B910527Ad5C03A9Ca831909E21e236EA7b06",
+  }
+};
