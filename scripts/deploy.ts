@@ -1,22 +1,17 @@
 import { ethers } from "hardhat";
 
 async function main() {
-  const currentTimestampInSeconds = Math.round(Date.now() / 1000);
-  const unlockTime = currentTimestampInSeconds + 60;
+  // https://docs.chain.link/ccip/supported-networks/testnet#polygon-mumbai
+  const ccipRouterAddr = "0xd0daae2231e9cb96b94c8512223533293c3693bf";
 
-  const lockedAmount = ethers.parseEther("0.001");
+  // deploy Pool on sepolia
+  const mockPool = await ethers.deployContract("MockPool");
 
-  const lock = await ethers.deployContract("Lock", [unlockTime], {
-    value: lockedAmount,
-  });
+  // deploy agent on sepolia and mumbai
+  const crossChainAaveAgent = await ethers.deployContract("CrossChainAaveAgent", [await mockPool.getAddress(), ccipRouterAddr]);
 
-  await lock.waitForDeployment();
-
-  console.log(
-    `Lock with ${ethers.formatEther(
-      lockedAmount
-    )}ETH and unlock timestamp ${unlockTime} deployed to ${lock.target}`
-  );
+  console.log(await mockPool.getAddress())
+  console.log(await crossChainAaveAgent.getAddress())
 }
 
 // We recommend this pattern to be able to use async/await everywhere
