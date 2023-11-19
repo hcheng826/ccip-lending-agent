@@ -3,46 +3,21 @@ pragma solidity 0.8.19;
 
 import {IPool} from "./interfaces/IPool.sol";
 import {IERC20} from "./interfaces/IERC20.sol";
+import {ICrossChainAaveAgent} from "./interfaces/ICrossChainAaveAgent.sol";
 import {IRouterClient} from "@chainlink/contracts-ccip/src/v0.8/ccip/interfaces/IRouterClient.sol";
 import {CCIPReceiver} from "@chainlink/contracts-ccip/src/v0.8/ccip/applications/CCIPReceiver.sol";
 import {Client} from "@chainlink/contracts-ccip/src/v0.8/ccip/libraries/Client.sol";
 
-contract CrossChainAaveAgent is CCIPReceiver {
+contract CrossChainAaveAgent is ICrossChainAaveAgent, CCIPReceiver {
     IPool immutable pool;
     address public owner;
     mapping(uint64 => mapping(address => bool))
         public crossChainBorrowerAllowList;
 
-    enum AaveOp {
-        BORROW,
-        REPAY
-    }
-
-    struct AaveOpParams {
-        address asset;
-        uint256 amount;
-        uint256 interestRateMode;
-        address onBehalfOf;
-        uint16 referralCode;
-    }
-
-    struct AaveOpData {
-        AaveOp op;
-        AaveOpParams params;
-    }
-
     constructor(IPool _pool, address _ccipRouter) CCIPReceiver(_ccipRouter) {
         pool = _pool;
         owner = msg.sender;
     }
-
-    event MessageSent(bytes32 messageId);
-    event MessageReceived(bytes32 messageId);
-
-    error CallerNotOwner();
-    error InvalidAaveOp(AaveOp op);
-    error CrossChainBorrowerNotAllowed(uint64 chainSelector, address sender);
-    error InputArrayLengthMismatch();
 
     modifier onlyOwner() {
         if (msg.sender != owner) {
