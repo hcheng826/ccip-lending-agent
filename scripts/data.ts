@@ -1,8 +1,8 @@
 // https://docs.chain.link/ccip/supported-networks/testnet
 export const data = {
   sepolia: {
-    MockPool: "0x618D407863c6ac5dB1Fd93A88490a32c3A674daC",
-    CrossChainAaveAgent: "0x9C2DD01e7676b307aADa611f51D93eeB48eb54C3",
+    MockPool: "0x0EFEDB298eA02F9c096144dD187B35e0E15d37E2",
+    CrossChainAaveAgent: "0x43b7e7d9a59421d4871F9F1DA65bb940EE0c4A5f",
     ccipRouter: "0xd0daae2231e9cb96b94c8512223533293c3693bf",
     chainSelector: "16015286601757825753",
     CCIP_BnM: "0xFd57b4ddBf88a4e07fF4e34C487b99af2Fe82a05",
@@ -19,8 +19,8 @@ export const data = {
     LINK: "0x326C977E6efc84E512bB9C30f76E30c160eD06FB",
   },
   bscTestnet: {
-    MockPool: "0x58724D534663427cA0eF134c59054Bd5a32c8C24",
-    CrossChainAaveAgent: "0xC20Da6Ca6Bf1C440b12d7BA167a3226afDd818c8",
+    MockPool: "0x795A7AADAEc49051a3C4524c6559fbbf450fd2A3",
+    CrossChainAaveAgent: "0x5E0A13B8D8ce713FD3D6F5f2ad510e3778865209",
     ccipRouter: "0x9527e2d01a3064ef6b50c1da1c0cc523803bcff2",
     chainSelector: "13264668187771770619",
     CCIP_BnM: "0xbfa2acd33ed6eec0ed3cc06bf1ac38d22b36b9e9",

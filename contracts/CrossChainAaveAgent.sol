@@ -9,7 +9,7 @@ import {Client} from "@chainlink/contracts-ccip/src/v0.8/ccip/libraries/Client.s
 
 contract CrossChainAaveAgent is CCIPReceiver {
     IPool immutable pool;
-    address immutable owner;
+    address public owner;
     mapping(uint64 => mapping(address => bool))
         public crossChainBorrowerAllowList;
 
@@ -51,6 +51,19 @@ contract CrossChainAaveAgent is CCIPReceiver {
         _;
     }
 
+    /// @notice Change to new owner
+    /// @param newOwner the address of new owner
+    /// @dev Only the owner can call this function.
+    function setOwner(address newOwner) external onlyOwner {
+        owner = newOwner;
+    }
+
+    /// @notice Sets allowed borrowers for cross-chain operations.
+    /// @param chainSelectors An array of chain selectors.
+    /// @param senders An array of arrays, each containing addresses of senders on corresponding chains.
+    /// @param values An array of arrays of booleans, indicating if a sender is allowed on the corresponding chain.
+    /// @dev Only the owner can call this function.
+    /// @dev Reverts if the lengths of the input arrays do not match.
     function setAllowedBorrower(
         uint64[] calldata chainSelectors,
         address[][] calldata senders,
@@ -81,6 +94,9 @@ contract CrossChainAaveAgent is CCIPReceiver {
         }
     }
 
+    /// @notice Borrows an asset from the Aave pool.
+    /// @param opParam Parameters for the borrow operation.
+    /// @dev Only the owner can call this function.
     function borrow(AaveOpParams calldata opParam) external onlyOwner {
         address asset = opParam.asset;
         uint256 amount = opParam.amount;
@@ -94,6 +110,8 @@ contract CrossChainAaveAgent is CCIPReceiver {
         IERC20(asset).transfer(msg.sender, amount);
     }
 
+    /// @notice Supplies an asset to the Aave pool.
+    /// @param opParam Parameters for the supply operation
     function supply(AaveOpParams calldata opParam) external {
         address asset = opParam.asset;
         uint256 amount = opParam.amount;
@@ -102,6 +120,8 @@ contract CrossChainAaveAgent is CCIPReceiver {
         pool.supply(asset, amount, opParam.onBehalfOf, opParam.referralCode);
     }
 
+    /// @notice Repays a borrowed asset to the Aave pool.
+    /// @param opParam Parameters for the repayment operation.
     function repay(AaveOpParams calldata opParam) external {
         address asset = opParam.asset;
         uint256 amount = opParam.amount;
@@ -110,6 +130,11 @@ contract CrossChainAaveAgent is CCIPReceiver {
         pool.repay(asset, amount, opParam.interestRateMode, opParam.onBehalfOf);
     }
 
+    /// @notice Withdraws an asset from the Aave pool.
+    /// @param asset The address of the asset to withdraw.
+    /// @param amount The amount of the asset to withdraw.
+    /// @param to The address to which the asset will be sent.
+    /// @dev Only the owner can call this function.
     function withdraw(
         address asset,
         uint256 amount,
@@ -118,6 +143,11 @@ contract CrossChainAaveAgent is CCIPReceiver {
         pool.withdraw(asset, amount, to);
     }
 
+    /// @notice Withdraws an asset from the agent contract.
+    /// @param asset The address of the asset to withdraw (use address(0) for ETH).
+    /// @param amount The amount of the asset to withdraw.
+    /// @param to The address to which the asset will be sent.
+    /// @dev Only the owner can call this function.
     function withdrawFromAgent(
         address asset,
         uint256 amount,
@@ -132,6 +162,11 @@ contract CrossChainAaveAgent is CCIPReceiver {
         IERC20(asset).transfer(to, amount);
     }
 
+    /// @notice Initiates a cross-chain borrow operation.
+    /// @param opParam Parameters for the borrow operation.
+    /// @param dstChainSelector The selector of the destination chain.
+    /// @param dstChainReceiver The address of the receiver on the destination chain.
+    /// @dev Only the owner can call this function.
     function borrowToChain(
         AaveOpParams calldata opParam,
         uint64 dstChainSelector,
@@ -140,6 +175,11 @@ contract CrossChainAaveAgent is CCIPReceiver {
         _borrowToChain(opParam, dstChainSelector, dstChainReceiver);
     }
 
+    /// @notice Initiates a cross-chain borrow request to another chain.
+    /// @param opParam Parameters for the borrow operation.
+    /// @param dstChainAgent The agent on the destination chain to handle the request.
+    /// @param dstChainSelector The selector of the destination chain.
+    /// @dev Only the owner can call this function.
     function borrowFromChain(
         AaveOpParams calldata opParam,
         address dstChainAgent,
@@ -165,6 +205,11 @@ contract CrossChainAaveAgent is CCIPReceiver {
         emit MessageSent(messageId);
     }
 
+    /// @notice Initiates a cross-chain repay operation.
+    /// @param opParam Parameters for the repayment operation.
+    /// @param dstChainAgent The agent on the destination chain to handle the repay.
+    /// @param dstChainSelector The selector of the destination chain.
+    /// @param srcChainAsset The asset on the source chain used for repayment.
     function repayToChain(
         AaveOpParams calldata opParam, // dst chain token address
         address dstChainAgent,
@@ -200,6 +245,10 @@ contract CrossChainAaveAgent is CCIPReceiver {
         emit MessageSent(messageId);
     }
 
+    /// @notice Internal function to initiate cross-chain borrow operation.
+    /// @param opParam Parameters for the borrow operation.
+    /// @param dstChainSelector The selector of the destination chain.
+    /// @param dstChainReceiver The address of the receiver on the destination chain.
     function _borrowToChain(
         AaveOpParams memory opParam,
         uint64 dstChainSelector,
@@ -240,6 +289,11 @@ contract CrossChainAaveAgent is CCIPReceiver {
         emit MessageSent(messageId);
     }
 
+    /// @notice Internal function to handle borrow requests from other chains.
+    /// @param params Borrow operation parameters.
+    /// @param sender The address initiating the borrow on the source chain.
+    /// @param chainSelector The selector of the chain from which the request originated.
+    /// @dev Checks if the sender is allowed to borrow and initiates cross-chain borrow if so.
     function _borrowFromThisChain(
         AaveOpParams memory params,
         address sender,
@@ -251,16 +305,19 @@ contract CrossChainAaveAgent is CCIPReceiver {
         _borrowToChain(params, chainSelector, sender);
     }
 
-    // called by ccip
+    /// @notice Internal function to handle repay requests from other chains.
+    /// @param params Repay operation parameters.
+    /// @dev Assumes the asset for repayment has been transferred via CCIP.
     function _repayToThisChain(AaveOpParams memory params) internal {
-        // assume the asset has been trasferred by CCIP
         address asset = params.asset;
         uint256 amount = params.amount;
         IERC20(asset).approve(address(pool), amount);
         pool.repay(asset, amount, params.interestRateMode, params.onBehalfOf);
     }
 
-    // called by ccip
+    /// @notice Override of CCIPReceiver's _ccipReceive function to handle incoming cross-chain messages.
+    /// @param message The incoming message from another chain.
+    /// @dev Decodes and processes the message based on the Aave operation type.
     function _ccipReceive(
         Client.Any2EVMMessage memory message
     ) internal override {
