@@ -1,4 +1,4 @@
-# Cross Chain Aave
+# CCIP-Lending-Agent
 
 ## Introduction
 In the DeFi space, liquidity is often fragmented across multiple chains, leading to inefficiencies. This project is a Proof of Concept (PoC) for a cross-chain operation of asset supply and borrowing, utilizing Chainlink's Cross-Chain Interoperability Protocol (CCIP). The primary goal is to bridge the liquidity gaps between chains, aiming for a future where users can engage in chain-agnostic supply and borrowing activities. The project envisions aggregating collateral and borrowing positions across various chains, allowing users to secure optimal rates through an underlying aggregator that facilitates transactions across multiple chains.
