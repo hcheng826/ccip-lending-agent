@@ -66,9 +66,11 @@ Follow these steps for setting up and interacting with the contracts:
 
    Sample message: https://ccip.chain.link/msg/0xd9cdeb9c2f3394321d497f6ec4efb7be1e1c967c3112a36657c108d0a91c2d43
 
-7. CCIP Funding: send some BNB to `CrossChainAaveAgent` contract on bscTestnet to pay for CCIP. (User can also send the BNB while calling the function below, via the `value` in the tx).
+   ![ccip-lending borrow to chain](https://github.com/hcheng826/ccip-lending-agent/assets/23033847/4b894ac7-cb54-43b1-8ff4-d8c6f629e446)
 
-8. Repay to Chain: call `repayToChain` on Bsc Testnet to repay debt on Sepolia `MockPool`.
+8. CCIP Funding: send some BNB to `CrossChainAaveAgent` contract on bscTestnet to pay for CCIP. (User can also send the BNB while calling the function below, via the `value` in the tx).
+
+9. Repay to Chain: call `repayToChain` on Bsc Testnet to repay debt on Sepolia `MockPool`.
    ```
    npx hardhat run scripts/repayToChain.ts --network bscTestnet
    ```
@@ -76,7 +78,9 @@ Follow these steps for setting up and interacting with the contracts:
 
    Sample message: https://ccip.chain.link/msg/0x68a6c7efbab4cd4d9f318dbc581a2117b698676ae6244105babac8f1107b9415
 
-9.  Borrow from Chain: call `borrowFromChain` on bscTestnet to borrow from Sepolia.
+   ![ccip-lending repay to chain](https://github.com/hcheng826/ccip-lending-agent/assets/23033847/2cdf1e93-6902-45da-a76d-b6db532ccafc)
+
+11.  Borrow from Chain: call `borrowFromChain` on bscTestnet to borrow from Sepolia.
       ```
       npx hardhat run scripts/borrowFromChain.ts --network bscTestnet
       ```
@@ -86,6 +90,9 @@ Follow these steps for setting up and interacting with the contracts:
       Sample message:
       - Bsc Testnet to Sepolia: https://ccip.chain.link/msg/0x68e25edb3e28dc6d22ba4543dba488e74166b95861b929a01cfbd34fbc84c022
       - Sepoliat to Bsc Testnet: https://ccip.chain.link/msg/0xabed2cf43e007f25716c1c98bd117ebcd18d2117c0733284eef3b1cd53a2e8ff
+   
+     ![ccip-lending borrow from chain](https://github.com/hcheng826/ccip-lending-agent/assets/23033847/588c6aca-b169-481d-91c2-55effe4b2cc7)
+
 
 ## Future Exploration
 - Liquidation and Interest Earning: Apply liquidation management and interest-earning functionalities for supplied assets, improving risk mitigation and user incentives.
