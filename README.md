@@ -1,12 +1,12 @@
 # CCIP-Lending-Agent
 
 ## Introduction
-In the DeFi space, liquidity is often fragmented across multiple chains, leading to inefficiencies. This project is a Proof of Concept (PoC) for a cross-chain operation of asset supply and borrowing, utilizing Chainlink's Cross-Chain Interoperability Protocol (CCIP). The primary goal is to bridge the liquidity gaps between chains, aiming for a future where users can engage in chain-agnostic supply and borrowing activities. The project envisions aggregating collateral and borrowing positions across various chains, allowing users to secure optimal rates through an underlying aggregator that facilitates transactions across multiple chains.
+In the DeFi space, liquidity is often fragmented across multiple chains, leading to inefficiencies. This project is a Proof of Concept (PoC) for a cross-chain operation of asset supply and borrowing on lending protocol like Aave, utilizing Chainlink's Cross-Chain Interoperability Protocol (CCIP). The primary goal is to bridge the liquidity gaps between chains, aiming for a future where users can engage in chain-agnostic supply and borrowing activities. The project envisions aggregating collateral and borrowing positions across various chains, allowing users to secure optimal rates through an underlying aggregator that facilitates transactions across multiple chains.
 
 ## Assumption and Limitation
-This PoC uses CCIP's special token (CCIP BnM) on the Testnet, which isn't supported on Aave's Testnet contracts. Thus, a `MockPool` was developed to mimic Aave's Pool, where CCIP BnM tokens can be supplied. Due to time constraints, the project currently focuses only on the standard supply, borrow, and repay workflows, omitting interest rate calculations and liquidation processes.
+CCIP only supports special token (CCIP BnM) on the Testnet, which isn't supported on Aave's Testnet contracts. Thus, a `MockPool` was developed to mimic Aave's Pool, where CCIP BnM tokens can be supplied. The project currently focuses only on the standard supply, borrow, and repay workflows, omitting interest rate calculations and liquidation processes.
 
-Given the project's time constraints and the complexity involved in creating unit tests for CCIP transactions, this PoC currently lacks comprehensive local unit testing. Instead, the functionalities were directly validated on the testnet. Further research and development are required to establish best practices for unit testing in a CCIP environment.
+This PoC currently lacks comprehensive local unit testing. Instead, the functionalities were directly validated on the testnet. Further research and development are required to establish best practices for unit testing in a CCIP environment.
 
 ## Contracts
 Two key contracts were developed:
