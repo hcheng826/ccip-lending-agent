@@ -8,7 +8,7 @@ CCIP only supports special token (CCIP BnM) on the Testnet, which isn't supporte
 
 This PoC currently lacks comprehensive local unit testing. Instead, the functionalities were directly validated on the testnet. Further research and development are required to establish best practices for unit testing in a CCIP environment.
 
-## Contracts
+## Smart Contracts
 Two key contracts were developed:
 
 - `MockPool`: This contract simulates the Aave v3 Pool, providing basic functionalities like supply, borrow, repay, and withdraw. While the function interfaces match Aave v3 Pool, the implementation is simplified to basic token transfers, excluding components like interest rates and liquidation.
